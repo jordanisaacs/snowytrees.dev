@@ -115,9 +115,9 @@
         code {
             font-family: 'JetBrainsMono', Menlo, DejaVu Sans Mono, Monaco, Consolas, Ubuntu Mono, monospace;
             font-feature-settings: normal;
-            background: var(--accent-alpha-20);
+            background: #2b303b;
             padding: 1px 6px;
-            color: var(--accent);
+            color: var(--accent-alpha-70);
             margin: 0 2px;
             font-size: 0.95rem;
             border-radius: $corner-radius;
