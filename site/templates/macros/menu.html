@@ -27,8 +27,9 @@
             </ul>
 
         </nav>
-        <nav class="menu-mobile">
-            <ul class="menu-inner menu-inner-mobile hidden">
+	{# Pre-render hidden since menu is toggleable #}
+        <nav class="menu-mobile hidden">
+            <ul class="menu-inner menu-inner-mobile">
                 {{ menu::items(menu=menu_items, current_url=current_url) }}
             </ul>
         </nav>
