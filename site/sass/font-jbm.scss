@@ -1,34 +1,49 @@
-/*!
- *  Hack typeface https://github.com/source-foundry/Hack
- *  License: https://github.com/source-foundry/Hack/blob/master/LICENSE.md
- */
 /* FONT PATHS
  * -------------------------- */
 @font-face {
-  font-family: 'JetBrainsMono';
-  src: url('fonts/JetBrainsMono-Nerd-Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'BerkeleyMono';
+  src: url('fonts/TX-02-Regular.woff2') format('woff2');
+  font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'JetBrainsMono';
-  src: url('fonts/JetBrainsMono-Nerd-Bold.woff2') format('woff2');
-  font-weight: 700;
+  font-family: 'BerkeleyMono';
+  src: url('fonts/TX-02-Bold.woff2') format('woff2');
+  font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'JetBrainsMono';
-  src: url('fonts/JetBrainsMono-Nerd-Italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'BerkeleyMono';
+  src: url('fonts/TX-02-Oblique.woff2') format('woff2');
+  font-weight: normal;
+  font-style: oblique;
 }
 
 @font-face {
-  font-family: 'JetBrainsMono';
-  src: url('fonts/JetBrainsMono-Nerd-BoldItalic.woff2') format('woff2');
-  font-weight: 700;
-  font-style: italic;
+  font-family: 'BerkeleyMono';
+  src: url('fonts/TX-02-Bold-Oblique.woff2') format('woff2');
+  font-weight: bold;
+  font-style: oblique;
 }
 
+@font-face {
+  font-family: 'NerdFontsSymbolsMono';
+  src: url("fonts/SymbolsNerdFontMono-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.nf, .nerd-font, .nerd-fonts {
+  font-family: 'NerdFontsSymbolsMono';
+  /* speak: none; */
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering (from devicons, et al) */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

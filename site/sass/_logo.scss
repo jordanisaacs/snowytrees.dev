@@ -3,9 +3,8 @@
 .logo {
     display: flex;
     align-items: center;
-    text-decoration: none;
-    background: var(--accent);
-    color: black;
-    padding: 8px 15px;
+    height: calc(2em + 6px);
+    color: var(--accent-secondary);
+    border: 2px solid;
     border-radius: $corner-radius;
 }

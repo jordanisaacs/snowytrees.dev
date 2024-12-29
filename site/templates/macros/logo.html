@@ -1,8 +1,6 @@
 {# https://github.com/ejmg/zerm/blob/master/templates/macros/logo.html #}
 {%- macro logo(config) -%}
 <a href="{%- if config.extra.logo_home_link -%}{{ config.extra.logo_home_link }}{%- else -%}{{ config.base_url }}{%- endif -%}">
-    <div class="logo">
-        {{ config.extra.logo_text | default(value="logo") | safe }}
-    </div>
+  <img src="{{get_url(path='images/snowytrees.jpeg')}}" class="logo"/>
 </a>
 {%- endmacro logo -%}

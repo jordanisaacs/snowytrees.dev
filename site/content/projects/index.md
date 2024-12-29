@@ -5,11 +5,11 @@ title = "Highlighted Projects"
 skip-meta = true
 +++
 
-# FastAPI-Sessions
+# Kernel Module Development Flake
 
-A project to add session support to FastAPI. Designed to support FastAPI's dependency injection while still being extremely extensible.
+A nix flake for conveniently developing C and Rust based out-of-tree kernel modules.
 
-[Github Repo ](https://github.com/jordanisaacs/fastapi-sessions)
+[Github Repo ](https://github.com/jordanisaacs/kernel-module-flake)
 
 # Dotfiles
 
@@ -19,6 +19,6 @@ My NixOS system and user configuration. You can follow along with my {{ url(path
 
 # This Website :)
 
-Powered by Zola, built with Nix, and hosted by Github Pages, this site is one of my favorite projects. Building a personal website has been a goal of mine for many years and I am very happy to have it live.
+Powered by Zola, built with Nix, and hosted by Github Pages.
 
-[Github Repo ](https://github.com/jordanisaacs/jdisaacs.com)
+[Github Repo ](https://github.com/jordanisaacs/snowytrees.dev)

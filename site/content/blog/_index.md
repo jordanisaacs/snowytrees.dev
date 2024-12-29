@@ -1,15 +1,13 @@
 +++
-title = "The Blog"
+title = "Blog"
 sort_by = "date"
 paginate_by = 10
 insert_anchor_links = "right"
-generate_feed = true
+generate_feeds = true
 
 [extra]
 feed_discovery = true
 +++
-
-# Welcome to my blog!
 
 * View the {{ url(path="/archive/", text="archive") }}
 * View all {{ url(path="/series/", text="series") }}

@@ -1,5 +1,5 @@
 # The URL the site will be built for
-base_url = "https://jdisaacs.com"
+base_url = "https://snowytrees.dev"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
@@ -7,7 +7,7 @@ compile_sass = true
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = false
 
-feed_filename = "rss.xml"
+feed_filenames = ["rss.xml", "atom.xml"]
 
 # Taxonomies https://www.getzola.org/documentation/content/taxonomies/
 taxonomies = [
@@ -27,7 +27,7 @@ external_links_no_referrer = true
 [extra]
 # Put all your custom variables here
 theme_color = "blue"
-author = "jd"
+title = "snowytrees.dev"
 read_more = "read more..."
 copyright = "Jordan Isaacs"
 favicon = "favicon.ico"
@@ -38,7 +38,6 @@ center = true
 
 main_menu_items = [
     { url = "/blog/", name="blog" },
-    { url = "/about/", name="about" },
     { url = "/projects/", name="projects" },
     { url = "https://github.com/jordanisaacs", name="github", external=true, newtab=true},
 ]

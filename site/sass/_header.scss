@@ -41,13 +41,14 @@
                 margin: 0px 15px 0px 10px;
             }
         }
-        
+
         a {
             flex: 0 0 auto;
             max-width: 100%;
             text-decoration: none;
 
             &:focus {
+		border-radius: $corner-radius;
                 outline: dotted 2px var(--color);
             }
         }
@@ -152,23 +153,21 @@
 
         &-trigger {
             display: none;
+	    align-self: stretch;
+	    place-items: center;;
+            color: var(--accent-secondary);
+            border: 2px solid;
+	    padding: 0px 6px;
+            border-radius: $corner-radius;
+            user-select: none;
 
             @media (max-width: $phone-max-width) {
                 display: inherit;
             }
 
             &:focus {
-                outline: dotted 2px var(--color);
-            }
-
-            &-button {
-                color: var(--accent-secondary);
-                border: 2px solid;
                 border-radius: $corner-radius;
-                user-select: none;
-                height: 100%;
-                padding: 6px 8px;
-                position: relative;
+                outline: dotted 2px var(--color);
             }
         }
     }

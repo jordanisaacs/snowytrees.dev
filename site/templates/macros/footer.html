@@ -2,11 +2,7 @@
   <div class="copyright">
       <span>
           © {{ now() | date(format="%Y") }} {{ config.extra.copyright | safe}} ::
-          Powered by
-          {{ url::external(url="https://getzola.org/", text="Zola", icon=false) }}
-      </span>
-      <span>
-          Like this site? see {{ url::external(url="https://github.com/jordanisaacs/jdisaacs.com", text="source code here", icon=false) }}
+          Like this site? see {{ url::external(url="https://github.com/jordanisaacs/snowytrees.dev", text="source", icon=false) }}
       </span>
   </div>
 {% endmacro copyright %}

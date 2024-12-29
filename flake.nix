@@ -1,31 +1,22 @@
 {
   # https://lukebentleyfox.net/posts/building-this-blog/
   # building zola is based on ^ blog post
-  
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-            inherit system;
-            overlays = [ overlay ];
+  outputs = { self, nixpkgs, flake-parts, ... }@inputs:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
+      perSystem = { pkgs, ... }: {
+        packages = let website = pkgs.callPackage ./site { };
+        in {
+          inherit website;
+          default = website;
         };
-        overlay = (final: prev: {
-          jdisaacs-site = prev.callPackage ./site {};
-        });
-      in 
-      rec {
-        inherit (overlay);
-
-        defaultPackage = pkgs.jdisaacs-site;
-
-        devShell = pkgs.mkShell {
-          buildInputs = [ pkgs.zola ];
-        };
-      }
-    );
+        devShells.default =
+          pkgs.mkShell { buildInputs = [ pkgs.zola pkgs.nixfmt ]; };
+      };
+    };
 }

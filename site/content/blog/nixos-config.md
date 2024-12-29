@@ -488,7 +488,7 @@ in {
     userEmail = mkOption {
       description = "Email for git";
       type = types.str;
-      default = "github@jdisaacs.com";
+      default = "your@email.com";
     };
   };
 

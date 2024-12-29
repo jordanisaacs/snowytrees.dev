@@ -1,10 +1,22 @@
 +++
-title = "Welcome to Jordan's Website!"
+title = "Home"
 insert_anchor_links = "right"
 +++
 
-# What is it?
+Hi, I am **Jordan Isaacs** (he/him)! I am a software engineer at _SingleStore_ where I work on database transaction processing and storage. Outside of $dayjob I build my own projects out in the open and contribute to various open source linux and Nix/NixOS projects.
 
-**Today a blog, tomorrow something more?**
+My formal education is in economics (with a focus on digital economy) which I studied at Carnegie Mellon University.
 
-My only goal for the site is to be a place to showcase anything and everything I find interesting. For now I blog, but I will see where things take me.
+# External Publications
+
+* [Change Data Capture for SingleStore ](https://www.singlestore.com/blog/change-data-capture-for-singlestore/): An overview of how SingleStore's log-based CDC-out works.
+
+# Digital Presence
+
+The breadcrumbs I leave across the world wide web.
+
+* Email: `my first name`@snowytrees.dev
+* Bluesky: @[snowytrees.dev ](https://bsky.app/profile/snowytrees.dev)
+* Github: @[jordanisaacs ](https://github.com/jordanisaacs)
+* Codeberg: @[snowytrees ](https://codeberg.org/snowytrees)
+* Discord: @snowytrees
