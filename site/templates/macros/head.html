@@ -17,7 +17,5 @@
 {% endmacro feed_discovery %}
 
 {% macro favicon(config) %}
-    {% if config.extra.favicon %}
-        <link rel="shortcut icon" href="{{ get_url(path=config.extra.favicon, trailing_slash=false) }}?" type="image/x-icon"/>
-    {% endif %}
+    <link rel="icon" href="{{ get_url(path="images/favicon.png", trailing_slash=false) }}?" type="image/png"/>
 {% endmacro favicon %}
