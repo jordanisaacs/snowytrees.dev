@@ -13,9 +13,8 @@
         --border: 3px dotted var(--accent);
         position: relative;
         color: var(--accent);
-        margin: 0 0 8px;
-        padding-top: 20px;
-        padding-bottom: 15px;
+        margin: 8px 0;
+        padding-bottom: 10px;
         border-bottom: var(--border);
 
         &:after {
@@ -75,6 +74,9 @@
 
         }
 
+	p {
+	    margin: 1.2em 0;
+	}
 
         h1:before {
             content: "# ";
@@ -98,7 +100,7 @@
         ul {
             list-style: none;
             padding-left: 10px;
-            margin-left: 0px;
+            margin: 8px 0px;
 
             li {
                 padding-left: 10px;
