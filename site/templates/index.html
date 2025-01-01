@@ -22,9 +22,7 @@
     <ul class="post-list">
         {% for page in section.pages -%}
             {%- if loop.index0 < 5 -%}
-                <li>
-                    {{ posts::meta(page=page, list=true) }}
-                </li>
+                {{ posts::meta(page=page, list=true) }}
             {%- endif -%}
         {%- endfor %}
     </ul>

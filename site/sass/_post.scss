@@ -38,8 +38,33 @@
     }
 
 
-    &-metatitle {
-        color: var(--accent-secondary);
+
+    &-meta {
+	&-list:first-of-type {
+	    padding-top: 0px;
+	}
+
+	&-list + &-list {
+	    padding-top: 15px;
+	}
+
+	&-page {
+            font-size: 1rem;
+            color: var(--accent-alpha-70);
+	}
+
+	&-list {
+            color: var(--color);
+
+            &.meta-title {
+		color: var(--accent-secondary);
+            }
+	}
+
+	&-title{
+	    padding-left: 30px;
+            color: var(--accent-secondary);
+	}
     }
 
 
@@ -64,6 +89,23 @@
             @media(max-width: $phone-max-width) {
                 visibility: visible;
             }
+        }
+    }
+
+    ul:not(.post-list) {
+        list-style: none;
+        padding-left: 10px;
+        margin: 8px 0px;
+
+        li {
+            padding-left: 10px;
+        }
+
+        li:before {
+            content: '*';
+            position: absolute;
+            left: -10px;
+            color: var(--accent);
         }
     }
 
@@ -97,23 +139,6 @@
             content: "#### ";
         }
 
-        ul {
-            list-style: none;
-            padding-left: 10px;
-            margin: 8px 0px;
-
-            li {
-                padding-left: 10px;
-            }
-
-            li:before {
-                content: '*';
-                position: absolute;
-                left: -10px;
-                color: var(--accent);
-            }
-        }
-
         code {
             font-family: 'BerkeleyMono', Menlo, DejaVu Sans Mono, Monaco, Consolas, Ubuntu Mono, monospace;
             font-feature-settings: normal;
@@ -141,45 +166,34 @@
                 border: none;
             }
         }
+
+	svg {
+	    width: 100%;
+	}
     }
 
     .pre-list {
-    
         border-bottom: 1px solid var(--border-secondary-color);
+    }
+
+    &-list {
+	list-style: none;
+	margin-left: 0px;
+	margin: 8px 0px;
+    }
+
+    &-taxonomy {
+	padding-left: 30px;
+    }
+
+    &-tag {
+	font-style: oblique;
+    }
+
+    &-series {
+	font-style: bold;
     }
 }
 
 .meta {
-    &-page {
-        font-size: 1rem;
-        color: var(--accent-alpha-70);
-    }
-
-    &-list {
-        color: var(--color);
-
-        &.meta-title {
-            color: var(--accent-secondary);
-        }
-    }
-}
-
-.post-list {
-    font-size: 1rem;
-    list-style: none;
-
-    li:before {
-        content: '</>';
-        position: absolute;
-        left: -33px;
-        color: var(--accent-alpha-70);
-    }
-
-    li {
-        padding-left: 5px;
-    }
-
-    @media(max-width: $phone-max-width) {
-        margin-left: 33px;
-    }
 }

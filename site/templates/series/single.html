@@ -13,9 +13,7 @@
 
         <ul class="post-list">
             {%- for post in term.pages -%}
-                <li>
-                    {{ posts::meta(page=post, list=true) }}
-                </li>
+                 {{ posts::meta(page=post, list=true) }}
             {%- endfor -%}
         </ul>
     </article>

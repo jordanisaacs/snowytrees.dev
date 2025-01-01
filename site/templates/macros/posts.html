@@ -1,17 +1,17 @@
 {% macro meta(page, list=false) %}
-<div class="post-meta {% if list %}meta-list{% else %}meta-page{% endif %}">
+<div class="post-meta {% if list %}post-meta-list{% else %}post-meta-page{% endif %}">
         {{ posts::date(date=page.date, updated=page.updated) }}
         {% if list %}
-        :: <span class="post-metatitle">
+        <div class="post-meta-title">
             <strong>@<a href="{{ page.permalink | safe }}">{{ page.title }}</a></strong>
-        </span>
+        </div>
         {% else %}
         :: <span class="post-readtime">
             {{ page.reading_time }} min read
         </span>
         {% endif %}
 
-        {{ posts::taxonomies(taxonomy=page.taxonomies) }}
+        {{ posts::taxonomies(taxonomy=page.taxonomies, list=list) }}
     </div>
 {% endmacro meta %}
 
@@ -26,25 +26,32 @@
     </span>
 {% endmacro date %}
 
-{% macro taxonomies(taxonomy) %}
+{% macro taxonomies(taxonomy, list) %}
+    {%- if list -%}
+    <div class="post-taxonomy">
+    {%- else -%}
+      ::
+    {%- endif -%}
     {% if taxonomy.series -%}
         {{ posts::series(series=taxonomy.series) }}
+        ::
     {% endif -%}
     {% if taxonomy.tags -%}
         {{ posts::tags(tags=taxonomy.tags) }}
     {% endif -%}
+    {%- if list -%}
+    </div>
+    {%- endif -%}
 {% endmacro taxonomies %}
 
 {% macro series(series) %}
-    ::
     {% for siri in series -%}
-        <strong>^<a href="{{ get_taxonomy_url(kind="series", name=siri) }}">{{ siri }}</a></strong>
+        ^<a href="{{ get_taxonomy_url(kind="series", name=siri) }}" class="post-series">{{ siri }}</a>
     {% endfor -%}
 {% endmacro series %}
 
 {% macro tags(tags) %}
-    ::
     {% for tag in tags -%}
-        #<a href="{{ get_taxonomy_url(kind="tags", name=tag) }}">{{ tag }}</a>
+        #<a href="{{ get_taxonomy_url(kind="tags", name=tag) }}" class="post-tag">{{ tag }}</a>
     {% endfor -%}
 {% endmacro tags %}

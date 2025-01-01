@@ -10,12 +10,10 @@
             #{{ term.name }}
             ({{ term.pages | length }} post{{ term.pages | length | pluralize }})
         </h1>
-    
+
         <ul class="post-list">
             {% for page in paginator.pages %}
-                <li>
-                    {{ posts::meta(page=page, list=true) }}
-                </li>
+                {{ posts::meta(page=page, list=true) }}
             {% endfor %}
         </ul>
     </article>

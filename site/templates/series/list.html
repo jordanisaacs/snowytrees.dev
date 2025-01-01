@@ -10,7 +10,7 @@
             ^{{ taxonomy.name }}
         </h1>
 
-        <ul class="post-list">
+        <ul class="taxonomy-list">
             {% for term in terms %}
                 <li>
                     <a href="{{ term.permalink | safe }}">{{ term.name }}</a>
