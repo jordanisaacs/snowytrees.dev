@@ -139,13 +139,24 @@
             content: "#### ";
         }
 
+	blockquote {
+	    width: 90%;
+	    margin: 0px auto;
+	    p {
+		background: #2b303b;
+		padding: 5px;
+		box-shadow: -10px 0px 0px 0px var(--accent-alpha-70);
+		border-radius: 2px;
+	    }
+	}
+
         code {
             font-family: 'BerkeleyMono', Menlo, DejaVu Sans Mono, Monaco, Consolas, Ubuntu Mono, monospace;
             font-feature-settings: normal;
             background: #2b303b;
-            padding: 1px 6px;
+            padding: 0.5px 2px;
             color: var(--accent-alpha-70);
-            margin: 0 2px;
+            margin: 0px;
             font-size: 0.95rem;
             border-radius: $corner-radius;
         }
@@ -166,6 +177,39 @@
                 border: none;
             }
         }
+
+	table {
+	    border-collapse: collapse;
+
+	    thead {
+		border-bottom: 2px solid;
+		border-color: var(--accent-secondary-alpha-20);
+		background: #2b303b;
+	    }
+
+	    th, td {
+		padding: 5px 8px;
+	    }
+
+	    tbody {
+		tr:not(:last-child) {
+		    border-bottom: 1.5px dashed;
+		    border-color: var(--accent-secondary-alpha-20);
+		}
+
+		td:not(:last-child) {
+		    border-right: 1px solid;
+		    border-color: var(--accent-secondary-alpha-20);
+		}
+	    }
+
+	    th {
+		color: var(--accent-secondary);
+		font-weight: normal;
+	    }
+
+	    margin: 0px auto;
+	}
 
 	svg {
 	    width: 100%;

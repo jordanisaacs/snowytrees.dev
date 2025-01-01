@@ -18,11 +18,13 @@ concurrency control, strict 2 phase locking is the standard.
 # Multi-Versioning w/ Row Locks
 
 For the purposes of this post, multi-versioning is implemented as a version list
-of values.
+of values. Additionally there is assumed to be some sort of deadlock
+prevention/detection component (e.g. locks implemented as wait-die/wound-wait).
 
-Multi-versioning is useful in pessimistic concurrency control. Read only
-transactions never have to obtain any locks because reads access already
-existing versions. They do a snapshot read as-of their timestamp.
+Combining multi-versioning with pessimistic concurrency control is very
+effective for snapshot isolation. Read only transactions never have to obtain
+any locks because reads access already existing versions. They do a snapshot
+read as-of their start timestamp.
 
 ## Snapshot Isolation
 
@@ -33,42 +35,90 @@ conflicts. Before acquiring the exclusive lock, there needs to be a check for
 any committed writes with a timestamp greater than the transaction's read
 timestamp.
 
+Read-write transactions read as-of their start timestamp, and write as-of their
+end timestamp.
+
 # Strict Two-Phase Locking
 
-Traditional PCC uses strict two-phase locking. It builds up all of the
-transaction's locks until the end of the transaction. Then holds them until the
-transaction becomes durable upon which it can release.
+Traditional PCC uses strict two-phase locking. A transaction builds up all of
+its locks, releasing none of them until the transaction is durable. If locks are
+released before the transaction is durable, you can get bad results. Imagine the
+following sequence where `A = 0`.
 
-It is beneficial to hold these locks for the shortest time period possible. The
-longer a lock is held, the longer conflicting transactions are blocked. Hence
-there is early lock release.
+| Timestamp | Txn A  | Txn B  |
+|---|---|---|
+| 1  | Begin  |   |
+| 2  |   | Begin  |
+| 3  | A=3  |   |
+| 4  | Release  |
+| 5  |   | A=A+1  |
+| 6  | Commit  |
+| 7  |   | Commit |
+
+The result is `A = 1` which is an undetected write-write conflict. `Txn B` did
+not see `Txn A` because `Txn A` did not commit before `Txn B`'s read
+timestamp. If the row was correctly locked, `Txn B` would have waited for `Txn
+A` to commit and then detect a write-write conflict. Instead, it saw no lock was
+held so it obtained it and wrote its own value.
+
+As one can surmise, it is beneficial to hold these locks for the shortest time
+period possible. The longer a lock is held, the longer conflicting transactions
+are blocked reducing concurrency. For example in a single node transaction there
+is the cost of writing durably to disk. The blue line is the duration of the
+transaction. Performing for I/O can take significantly longer than the
+transaction itself. In strict 2PL the locks are held for the entire
+duration. Ideally we would hold locks only for the green arrow, until the commit
+is requested.
+
+> For example, assuming 40,000 instructions per transaction, 1 instruction per
+> CPU cycle on average, a 4 GHz CPU clock, and no buffer faults, a modern
+> processor core can execute the transaction logic in about 0.01 ms
+> ...
+> If stable storage for the recovery log is provided by flash storage, commit
+> time might be faster by two orders of magnitude, i.e., 0.1 ms, but it is still
+> an order of magnitude longer than transaction execution.
+
+<p><img src="/images/clv-1pc.png" style="min-width:60%; max-width:90%;margin:0px auto;display:block"></p>
+
+It is even worse with two-phase commit. We are holding locks across the prepare
+I/O, network activity, and then the commit I/O. The blue line is the
+entirety of the 2PC transaction. Ideally we hold locks just for the red
+line. The line below also assumes communication time is neglible which is not
+generally the case, there are network round trips to take into account.
+
+> Traditional commit processing holds all locks for ... 0.21 ms (log on flash);
+> early lock release holds all locks for ... 0.11 ms; and controlled lock
+> violation enforces locks for only 0.01 ms (independent of the log device).
+
+<p><img src="/images/clv-2pc.png" style="min-width:60%; max-width:90%;margin:0px auto;display:block"></p>
+
+Therefore, there is the idea of releasing locks/allowing lock violations
+early.
 
 # Early Lock Release
 
+Since this posts focuses on snapshot isolation which only uses exclusive locks
+(writes), I will ignore the implications of early release of shared locks
+(reads).
 
-## Shared Locks (Reads)
-
-Shared locks can be released as soon as the transaction is finished, before
-becoming durable.
-
-## Exclusive Locks (Writes)
+## Exclusive Locks
 
 Transaction A releasing locks early means that Transaction B is reading dirty
 data. Therefore, a commit dependency is created between A and B. There are two
 things that this commit dependency means:
 
-1. B must commit after A commits.
+1. B can only commit after A commits.
 2. If A rolls back, B must abort/rollback.
 3. B can operate on A's data inside the DBMS, but it must not return any of A's
    data to the client until A commits.
 
 https://www.semanticscholar.org/paper/Efficient-Locking-Techniques-for-Databases-on-Kimura-Graefe/dca81f95026cd7525c083fcd4347085f15324e9a
 
-MySQL InnoDB has early lock release, but they do not prevent Case 3. They
-release locks before the fsync. Therefore they caution about dirty reads: B can
-return some of A's data, and then there is a crash before A commits. A few more
-details can be found here
-https://web.archive.org/web/20241229100046/https://m.facebook.com/nt/screen/?params=%7B%22note_id%22:10157508562376696%7D&path=/notes/note/.
+Case 3 is the rule preventing dirty reads. For example, MySQL InnoDB has early
+lock release, but they do not prevent Case 3. They release locks before the
+fsync. Therefore they caution about dirty reads: B can return some of A's data,
+and then there is a crash before A commits. A few more details can be found in this
+[Facebook note](https://web.archive.org/web/20241229100046/https://m.facebook.com/nt/screen/?params=%7B%22note_id%22:10157508562376696%7D&path=/notes/note/). UNDONE: use a citation
 
 Implementing early lock release with correct commit dependencies is very tricky.
 
@@ -128,7 +178,7 @@ which owns `Txn C` has not been released yet.
 
 This next diagram shows the outcome of `Txn A` committing. Similar to
 traditional strict 2PL snapshot isolation, all the waiters abort with a
-write-write conflict. However, because we optimistically generated a linear
+write-write conflict. However, because we optimistically made progress on the
 history based on `Txn A`, we are able to continue with the uncommitted
 list. Additionally, `V5` started allowing violations.
 
@@ -152,29 +202,66 @@ owned, it now has acquired the exclusive lock and inserted its own `V5`.
 
 You may have noticed some properties after seeing some diagrams of how it
 works. First is every uncommitted node has its own row lock. This means there
-are two locks in the uncontended case. The uncommitted node row locks should
-ideally be lazily created.  This would reduce the overhead to `N-1` row locks
-where `N` is the number of uncommitted nodes.
+are two locks in the uncontended case, the committed node lock and the
+uncommitted node lock. I wonder if the uncommitted node row locks can be lazily
+created and if that would be more space efficient. This would reduce mean the
+overhead is `N` row locks where `N` is the number of uncommitted nodes (assuming
+the committed row lock always exists).
 
 Some other overhead is the extra release timestamp. Similar to how one can store
 the commit timestamp in the transaction, if all transaction locks are released
 at the same timestamp, then the release timestamp can be stored once in the
 transaction and shared across versioned lists.
 
-Also, commit dependencies are built into the version list. The transaction does
-not need to keep track of write commit dependencies as they will be encountered
-during lock release.
+Finally, another nice feature is the uncommitted workspace *is* the final
+version list. Writes do not need to operate on a private transaction buffer as
+there is only one potential history at a time.
 
-Finally, what is cool is the workspace is on the final version list. There is no
-private transaction buffer that writes need to operate on.
+### Waiter Behavior
 
-### Read Commit Dependencies
+With lock violations the assumption is made that transactions won't abort once
+violations are allowed. This raises the question of waiters why waiters should
+wait until _commit_ to get a write-write conflict instead of making the decision
+at _release_ time.
 
-UNDONE: flesh this out. add a graphic
+My educated assumption is deciding write-write conflicts post _release_ is
+better. This causes the transaction/user to retry faster, because we are
+assuming the commit will happen. With the retry, the restarted transaction will
+have a later read timestamp and thus deeper access to the uncommitted version
+list to make progress.
 
-The write set is not always the same as the read set of a transaction. In order
-to support controlled lock violations, we also need to build commit dependencies
-for read rows.
+### Commit Dependencies
+
+A handy benefit of the versioned list is commit dependencies are embedded in
+it. Transactions do not need to keep track of their write dependents as during
+lock release they will be in the version list.
+
+However, the write set is not necessarily the same as the read set of a
+transaction. We also need to track commit dependencies for read rows. This is
+because we may be reading uncommitted data. So the transaction must wait for all
+read rows to be committed and abort if necessary before committing.
+
+UNDONE: graphic + citations
+
+To implement this we can take ideas from https://www.semanticscholar.org/paper/High-Performance-Concurrency-Control-Mechanisms-for-Larson-Blanas/7ce9e2064bfe1d50ca59edecff8da40604985c0d
+
+Each transaction, `T`, will have three new fields:
+
+* `ReadCommitDepSet`: A set of all the read transaction ids that depend on `T`.
+* `CommitDepCounter`: A counter of all (read + write) transactions that `T` depends on.
+* `AbortNow`: A boolean flag that other transactions can set to tell `T` to abort.
+
+When `T` acquires an exclusive lock through controlled lock violation, it
+increments its own `CommitDepCounter`. When `T` performs a controlled lock violation
+for a read on another transaction, it increments its own `CommitDepCounter`, and
+adds itself to the other transaction's `ReadCommitDepSet`. It only does this for
+the node that is actually read (it may have iterated through X uncommitted nodes
+before it).
+
+During a commit/abort, `T` will iterate through its `ReadCommitDepSet` and
+decrement the transaction's `CommitDepCounter`. During lock release, it will
+also decrement the next node in the version's list `CommitDepCounter`. If it was
+an abort, it additionally will set the `AbortNow` flag on all the transactions.
 
 ### High Watermark Implementation
 
@@ -209,7 +296,7 @@ log, it may be better to implement the read dependencies using high watermark.
 
 UNDONE: flesh this out add graphic
 
-### Insert Row Return
+### Write Row Return
 
 When returning rows from a single-statement write statement, e.g. using
 PostgreSQL's
@@ -230,7 +317,7 @@ then it is possible to stream the results back immediately for single-statement
 transactions. This is because the statement will fail (the implicit commit) if
 any of the commit dependencies fail.
 
-### Multi-statement
+### Multi-Statement
 
 Multi-statement transactions have to use read-write visibility semantics. This
 is because using the `CommitTs` for reads would hide your own writes from you if
@@ -238,28 +325,53 @@ they are not at the head of the uncommitted list. Additionally, mixing the two
 visibilities depending on a read/write statement would mean the transaction is
 seeing two different snapshots depending on the statement type.
 
-This means read statements in a multi-statement may have commit
-dependencies. The DBMS can operate internally on rows without waiting for known
-outcomes. Commit dependencies only need to be only resolved for rows returned to
-the client. This is required because forgoing waiting for commit dependencies
-means dirty reads as uncommitted rows are returned.
+#### Preventing Dirty Reads
+
+This means read statements in a multi-statement may have commit dependencies
+from reading dirty rows. The DBMS can operate internally on these rows without
+waiting for known outcomes. However, commit dependencies must be resolved for
+rows returned to the client. The transaction needs to wait for the dirty row to
+become a committed row.
 
 The wait for resolution of commit dependencies should be lazily performed. Query
 execution is likely to read more rows then actually returned to the user. Some
-form of row tainting may be a solution here. Taint the row if it is uncommitted
-data so when at the final stage of returning the row, a wait is performed. Or if
-the row's versioned node is passed through all the stages of query execution, it
-can check if the node is committed and wait if necessary.
+form of row tainting may be a solution here. The transaction could taint the row
+with a txn id if it is uncommitted so when at the final stage of returning the
+row, a check/wait can be performed. If the query engine passes through the
+versioned node, then it already has access to the transaction to check/wait on.
 
-Interestingly, one does not need to wait for commit dependencies if returning a
-row that the transaction wrote. This is because the client is already expected
-to be receiving uncommitted data. It also extends to the insert row return
-statement. Because the statement is not expected to commit, it is always
-expected that the rows returned are uncommitted. So regardless of the
-guarantetes insert row return provides in the single-statement case, in
+A nice optimization is when returning rows that the transaction wrote, one does
+not need to wait for commit dependencies. This is because the client is
+expecting that they are receiving uncommitted data. It also extends to the
+write row return statement. Because the statement is not expected to commit, it
+is always expected that the rows returned are uncommitted. So regardless of the
+guarantees write row return provides in the single-statement case, in the
 multi-statement no waiting is necessary.
 
-As in the strict 2PL serializability case, snapshot isolation with controlled
-lock violations can benefit from _read only multi-statement_ transactions. This
-would use the `CommitTs` visibility for all read statements and prevent the
-occurrence oof any completion dependencies.
+#### New Multi-Statement Types
+
+There are two new types of multi statement transactions that can be useful with
+controlled lock violation.
+
+**Read only multi-statement transactions**
+
+Because read queries have higher overhead in read-write transactions, having
+read-only multi-statement transactions would allow for multiple read queries as
+of the same timestamp with zero overhead. They would use the `CommitTs`
+visibility rule for all the queries which prevents commit dependencies. As the
+name implies, attempting to do a write query in a read-only multi statement
+would produce an error.
+
+**Dirty read multi-statement transactions**
+
+Sometimes a multi-statement transaction that does reads and writes does not care
+about dirty reads. Imagine a transaction that reads some rows, does some
+processing outside of the database on them (e.g. building a full-text index or
+an embedding), then inserts the processed data back into the database. The
+client does not care that the data may be uncommitted because the data is only
+being used in the context of the transaction. The transaction commit will fail
+if one of the commit dependencies aborted. It can be thought of as extending the
+internal DBMS' use of dirty reads to the user transaction. These types of
+transactions should be able to opt out of the wait for commit overhead.
+
+# Conclusion
