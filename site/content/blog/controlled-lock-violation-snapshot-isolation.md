@@ -10,40 +10,57 @@ tags=["Concurrency Control", "Locking", "2PC"]
 # Background
 
 There are two forms of concurrency control: pessimistic and
-optimistic. Pessimistic concurrency control In the world of pessimistic
-concurrency control, strict 2 phase locking is the standard.
+optimistic. Pessimistic concurrency control performs conflict checking early while optimistic concurrency control detects it at the end of the transaction.
 
 <!--more-->
 
-# Multi-Versioning w/ Row Locks
+# Multi-Versioned Snapshot Isolation w/ Row Locks
 
 For the purposes of this post, multi-versioning is implemented as a version list
 of values. Additionally there is assumed to be some sort of deadlock
 prevention/detection component (e.g. locks implemented as wait-die/wound-wait).
 
 Combining multi-versioning with pessimistic concurrency control is very
-effective for snapshot isolation. Read only transactions never have to obtain
-any locks because reads access already existing versions. They do a snapshot
-read as-of their start timestamp.
+effective for [snapshot
+isolation](https://jepsen.io/consistency/models/snapshot-isolation). Reads
+performed from the transaction's start timestamp. They have visibility of the
+latest value with `CommitTs <= StartTs`. This is what gives them a lock-free
+snapshot read.
 
-## Snapshot Isolation
+In snapshot isolation one needs to detect and prevent write-write conflicts. A
+read-write transaction will perform their reads as of the transaction's start
+timestamp. Visibility is also based on `CommitTs <= StartTs`. Writes are
+performed as of the transaction's commit timestamp. There is a detection phase
+and then a prevention phase for write-write conflicts. First, the transaction
+determines if any of its writes conflict with already committed writes. Is there
+a committed node with `CommitTs > StartTs`.
 
-For snapshot isolation, one needs to detect and prevent write-write
-conflicts. UNDONE: formal definition of write-write conflict. In PCC, obtaining
-an exclusive lock (writes) on the row to prevent new write-write
-conflicts. Before acquiring the exclusive lock, there needs to be a check for
-any committed writes with a timestamp greater than the transaction's read
-timestamp.
+UNDONE: a graphic
 
-Read-write transactions read as-of their start timestamp, and write as-of their
-end timestamp.
+Then, it acquires an exclusive lock on the row. This prevents future concurrent
+writers from also attempting to write a value (which would be a write-write
+conflict).
 
-# Strict Two-Phase Locking
+UNDONE: some graphics
 
-Traditional PCC uses strict two-phase locking. A transaction builds up all of
+If the lock was already held, the transaction waits.
+
+UNDONE: a graphic
+
+## Strong Strict Two-Phase Locking
+
+These locks are used to prevent write-write conflicts so it is important that
+they are held for the duration of the transaction. Releasing the locks would not
+cause dirty reads because the start timestamp of the transaction would still be
+less than the early release commit timestamp (uncommited values would not have
+one). This is known as strong strict two-phase locking.
+
+In strong strict two-phase locking. A transaction builds up all of
 its locks, releasing none of them until the transaction is durable. If locks are
 released before the transaction is durable, you can get bad results. Imagine the
-following sequence where `A = 0`.
+following example where `A = 0`.
+
+UNDONE: some graphics
 
 | Timestamp | Txn A  | Txn B  |
 |---|---|---|
@@ -142,23 +159,23 @@ UNDONE: add graphics from paper.
 
 ## Multi-Versioning
 
-To support controlled lock violations, our versioned list needs to additionally
-support the following:
+To support controlled lock violations, our versioned list needs to support the
+following:
 
 * Multiple uncommitted nodes that are dependent on each other.
 * Timestamps to determine uncommitted node visibility.
 
-To do this, our versioned nodes include a new value, `ReleaseTs`. This is the
-timestamp at which the row lock allows violations.
+To do this, our versioned nodes include a new value, `ViolationTs`. This is the
+timestamp at which the locked uncommitted node allows violations.
 
 Read-only transactions still determine visibility using the `CommitTs`: the
-latest node with `CommitTs <= ReadTs`. This is what ensures they read-only
-transactions do have any completion dependencies. See UNDONE for more details.
+latest node with `CommitTs <= StartTs`. This is what ensures read-only
+transactions do not read uncommitted data and incur commit dependencies.
 
-Read-write transactions use the `ReleaseTs`: the latest node with `ReleaseTs <=
-ReadTs`. This is what allows them to see the uncommitted nodes. Now we can go
-through some scenarios to see what this looks like in practice using only
-exclusive locks (snapshot isolation).
+Read-write transactions use the `ViolationTs`: the latest node with `ViolationTs
+<= StartTs`. This is what allows them to see the uncommitted nodes. The
+consequence being reads and writes in a read-write transaction generate commit
+dependencies.
 
 ## Snapshot Isolation
 
@@ -167,10 +184,10 @@ exclusive locks (snapshot isolation).
 Multi-versioned snapshot isolation as outlined earlier just needs exclusive
 locks.  Lets run through some scenarios to see how writes work in practice with
 CLV. The initial state has two committed values, and an uncommitted chain with
-three values. As stated above, each versioned node has a `ReleaseTs` and a
+three values. As stated above, each versioned node has a `ViolationTs` and a
 `CommitTs` (invalid values if not committed/allowing violations yet). `Txn A`
 currently owns the exclusive lock on `V2` (it was the transaction that inserted
-`V3`). `Txn H ReadTs < V3 ReleaseTs` and `Txn J ReadTs < V3 ReleaseTs` so they
+`V3`). `Txn H StartTs < V3 ViolationTs` and `Txn J StartTs < V3 ViolationTs` so they
 can only read `V2`. Therefore, they wait on `V2` to be released instead. `V5`
 which owns `Txn C` has not been released yet.
 
@@ -185,9 +202,9 @@ list. Additionally, `V5` started allowing violations.
 {{ load_data(path="static/images/clv_mvcc_t2.svg") }}
 
 Next up GC was performed removing some of the lower committed versions to make
-the graphic easier for the reader. `Txn D (ReadTs = 7)` acquired the lock on
+the graphic easier for the reader. `Txn D (StartTs = 7)` acquired the lock on
 `V5` to insert `V6`. Notice that the read timestamp is less than `V4
-CommitTs=9`. This is why using `ReleaseTs`/`CommitTs` for visibility choices is
+CommitTs=9`. This is why using `ViolationTs`/`CommitTs` for visibility choices is
 important. The commit timestamp is greater than the timestamps in the
 uncommitted chain. But our read-write transactions need to have visibility into
 the uncommitted chain.
@@ -230,20 +247,37 @@ assuming the commit will happen. With the retry, the restarted transaction will
 have a later read timestamp and thus deeper access to the uncommitted version
 list to make progress.
 
+### Violation Atomicity
+
+For correctness, setting violations does not need to be performed for all writes
+in a transaction at the same time. This is because a transaction will end up
+waiting for the outcome if the lock is not allowing violations (it does not just
+ignore the value). However in practice allowing violations should be performed
+atomically. Imagine the following scenario with non-atomic violations:
+
+{{ load_data(path="static/images/clv_mvcc_atomic.svg") }}
+
+If `Txn A` commits, `Txn B` will abort because it is a waiter on `Txn A` in
+Versioned List A. If `Txn A` aborts, `Txn B` will abort because it is dependent
+on `Txn A` in Versioned List B. If the violation timestamp was set atomically
+for all writers this would be avoided.
+
+Visibility of violations does need to be atomic, similar to commits. Otherwise
+`Txn B` would be a waiter on `Txn A`'s V2 even though the `ViolationTs <=
+StartTs`.
+
 ### Commit Dependencies
 
 A handy benefit of the versioned list is commit dependencies are embedded in
-it. Transactions do not need to keep track of their write dependents as during
-lock release they will be in the version list.
+it. Transactions do not need to keep track of write dependents as during lock
+release they will visible in the version list.
 
 However, the write set is not necessarily the same as the read set of a
 transaction. We also need to track commit dependencies for read rows. This is
 because we may be reading uncommitted data. So the transaction must wait for all
 read rows to be committed and abort if necessary before committing.
 
-UNDONE: graphic + citations
-
-To implement this we can take ideas from https://www.semanticscholar.org/paper/High-Performance-Concurrency-Control-Mechanisms-for-Larson-Blanas/7ce9e2064bfe1d50ca59edecff8da40604985c0d
+To implement this we can use the ideas from https://www.semanticscholar.org/paper/High-Performance-Concurrency-Control-Mechanisms-for-Larson-Blanas/7ce9e2064bfe1d50ca59edecff8da40604985c0d
 
 Each transaction, `T`, will have three new fields:
 
@@ -263,19 +297,27 @@ decrement the transaction's `CommitDepCounter`. During lock release, it will
 also decrement the next node in the version's list `CommitDepCounter`. If it was
 an abort, it additionally will set the `AbortNow` flag on all the transactions.
 
-### High Watermark Implementation
+In the following scenario, `Txn A` has not performed any lock violations so
+`CommitDepCounter = 0`. `Txn B` violated the lock and read the V2 from `Txn B`,
+so it added itself to the `ReadCommitDepSet` and incremented its own
+`CommitDepCounter`.
+
+{{ load_data(path="static/images/clv_mvcc_read.svg") }}
+
+#### High Watermark Implementation
 
 The controlled lock violation paper proposes high watermarks as a simple
 implementation for commit dependencies on single node databases. It uses the
 high watermark of the log. Transactions allow lock violations after determining
 their commit LSN. Transactions check commit LSNs of its lock violations, and
 store the max commit LSN of its dependencies. When the log's high watermark is
-greater than the that max depedency commit LSN, its dependencies are durable and
+greater than the that max dependency commit LSN, its dependencies are durable and
 the commit can proceed.
 
 This simple implementation does not support efficient two-phase commits. As
 detailed earlier, lock violations should be allowed during the prepare phase,
-which is before the commit LSN is known.
+which is before the commit LSN is known. Using the high watermark would only
+allow violations during the commit phase.
 
 Additionally, it is not efficient if the log supports out of order
 commits. Imagine the following scenario. Txn B violated one of Txn A's
@@ -288,9 +330,12 @@ Txn Z (slow, committing) | Txn A (committed) | Txn B (waiting for HWM)
 ```
 
 With a high watermark implementation, it may be faster for Txn A not to allow
-the lock violation so Txn B could immediately acquire the lock and commit. If
-the database does not support two-phase commit and does not use an out of order
-log, it may be better to implement the read dependencies using high watermark.
+the lock violation so Txn B could immediately acquire the lock and commit
+
+If the database does not support two-phase commit and does not use an out of
+order log, it can be simpler to implement the read dependencies using high
+watermark. There would still need to be the `CommitDepCounter` and `AbortNow`
+for write dependencies unless those also participated in the high watermark.
 
 ### Two Phase Commit
 
