@@ -92,6 +92,23 @@
         }
     }
 
+    ol {
+	list-style: none;
+        padding-left: 20px;
+	margin: 8px 0px;
+
+	li {
+	    padding-left: 5px;
+	}
+
+	li:before {
+	    content: counter(list-item) '. ';
+            position: absolute;
+            left: -20px;
+            color: var(--accent);
+	}
+    }
+
     ul:not(.post-list) {
         list-style: none;
         padding-left: 10px;
@@ -139,15 +156,27 @@
             content: "#### ";
         }
 
+	blockquote {
+	    width: 90%;
+	    margin: 0px auto;
+
+	    p {
+		background: #2b303b;
+		padding: 5px 5px 5px 30px;
+		box-shadow: -10px 0px 0px 0px var(--accent-alpha-70);
+		border-radius: 2px;
+	    }
+	}
+
         code {
             font-family: 'BerkeleyMono', Menlo, DejaVu Sans Mono, Monaco, Consolas, Ubuntu Mono, monospace;
             font-feature-settings: normal;
             background: #2b303b;
-            padding: 1px 6px;
+            padding: 0.5px 2px;
             color: var(--accent-alpha-70);
-            margin: 0 2px;
+            margin: 0px;
             font-size: 0.95rem;
-            border-radius: $corner-radius;
+            border-radius: 1px;
         }
         pre {
             font-family: 'BerkeleyMono', Menlo, DejaVu Sans Mono, Monaco, Consolas, Ubuntu Mono, monospace;
@@ -167,8 +196,111 @@
             }
         }
 
+	.footnote-reference {
+	    margin: 0px 0px 0px 1px;
+	    // Ensures `[X]` wraps together.
+	    display: inline-block;
+
+	    a {
+		text-decoration-thickness: 0.5px;
+	    }
+
+	    a:before {
+		content: "[";
+		display:inline-block;
+		text-decoration: none;
+	    }
+
+	    a:after {
+		content: "]";
+		display:inline-block;
+		text-decoration: none;
+	    }
+	}
+
+	.figure {
+	    display: flex;
+	    flex-direction: column;
+	    img {
+		margin: 0px auto;
+	    }
+	    &-description {
+		color: #b0b0b0;
+		margin: 8px 0px;
+		font-size: 0.9rem;
+		text-align: center;
+	    }
+	}
+
+	.footnote-definition {
+	    display: flex;
+	    color: #b0b0b0;
+
+	    .footnote-definition-label {
+		margin-right: 5px;
+	    }
+
+	    .footnote-definition-label:before {
+		content: "[";
+	    }
+
+	    .footnote-definition-label:after {
+		content: "]";
+	    }
+
+	    p {
+		margin: 0px;
+		font-size: 0.8rem;
+		// To prevent overflow at high zoom.
+		word-break: break-word;
+		a {
+		    text-decoration-thickness: 0.5px;
+		}
+
+	    }
+	}
+
+	table {
+	    border-collapse: collapse;
+	    border: 2px solid;
+	    // Hardcoded --accent-secondary-alpha-20 because borders overlap
+	    border-color: #3b2e2e;
+
+	    thead {
+		border-bottom: 2px solid;
+		border-color: #3b2e2e;
+		background: #2b303b;
+	    }
+
+	    th, td {
+		padding: 5px 8px;
+	    }
+
+	    tbody {
+		tr:not(:last-child) {
+		    border-bottom: 1.5px dashed;
+		    border-color: #3b2e2e;
+		}
+
+		td:not(:last-child) {
+		    border-right: 1px solid;
+		    border-color: #3b2e2e;
+		}
+	    }
+
+	    th {
+		color: var(--accent-secondary);
+		font-weight: normal;
+	    }
+
+	    margin: 0px auto;
+	}
+
 	svg {
-	    width: 100%;
+	    width: auto;
+	    height: auto;
+	    margin: 0px auto;
+	    max-width: 100%;
 	}
     }
 

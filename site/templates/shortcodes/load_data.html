@@ -1,0 +1,7 @@
+<div class="figure">
+  {{ load_data(path=path) | safe }}
+  {# Figure is not rendered from markdown :( so manually do it #}
+  <div class="figure-description">{{body}}{%- if fig -%}<sup class="footnote-reference"><a href="#{{fig}}">{{fig}}</a></sup>
+    {%- endif -%}
+  </div>
+</div>

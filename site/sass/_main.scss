@@ -95,8 +95,8 @@ p {
 }
 
 ul, ol {
-    margin-left: 30px;
-    padding: 0;
+    padding: 0px;
+    margin: 0px 8px;
 
     li {
         position: relative;
@@ -112,10 +112,6 @@ ul, ol {
         margin-top: 10px;
         margin-bottom: 10px;
     }
-}
-
-ol ol {
-    list-style-type: lower-alpha;
 }
 
 

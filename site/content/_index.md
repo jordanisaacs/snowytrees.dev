@@ -3,9 +3,13 @@ title = "Home"
 insert_anchor_links = "right"
 +++
 
-Hi, I am **Jordan Isaacs** (he/him)! I am a software engineer at _SingleStore_ where I work on database transaction processing and storage. Outside of $dayjob I build my own projects out in the open and contribute to various open source linux and Nix/NixOS projects.
+Hi, I am **Jordan Isaacs**! I am a software engineer at _SingleStore_ where I
+work on database transaction processing and storage. Outside of $dayjob I
+develop and contribute to various open source Linux and Nix/NixOS related
+projects.
 
-My formal education is in economics (with a focus on digital economy) which I studied at Carnegie Mellon University.
+I went to university at Carnegie Mellon where I received a B.A. in Economics
+with a focus on digital economies.
 
 # External Publications
 

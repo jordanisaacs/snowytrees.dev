@@ -12,7 +12,7 @@
                 {% if page.extra['archive'] %}
                 {{ page.title }} ({{ section.pages | length }} post{{ section.pages | length | pluralize }})
                 {% else %}
-                    <a href="{{ page.permalink }}">{{ page.title }}</a>
+                    {{ page.title }}
                 {% endif %}
             </h1>
             {% if not page.extra['skip-meta'] -%}
