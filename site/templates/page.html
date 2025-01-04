@@ -22,9 +22,11 @@
 
   {% if not page.extra['skip-meta'] %}
   <aside class="post-disclaimer">
-    {% if page.extra.thanks %}
-    {{ page.extra.thanks }}
-    {% endif %}
+    {%- if page.extra.thanks -%}
+    {{- page.extra.thanks -}}
+    <br/>
+    {%- endif -%}
+
     All opinions are solely my own and do not represent those of my employer.
   </aside>
 
