@@ -1,6 +1,8 @@
 @import "variables";
+@import "tree";
 
 .post {
+    display: block;
     width: 100%;
     text-align: left;
 
@@ -37,7 +39,27 @@
         }
     }
 
+    .toc {
+	margin: 8px 0px;
+	margin-left: 8px;
 
+	a {
+	    text-decoration-thickness: 0.5px;
+	}
+    }
+
+    &-disclaimer {
+	float: right;
+	color: #b0b0b0;
+	margin: 8px 0px;
+	font-size: 0.75rem;
+	text-align: right;
+	width: 40%;
+
+        @media(max-width: $phone-max-width) {
+	    width: 50%;
+	}
+    }
 
     &-meta {
 	&-list:first-of-type {
@@ -109,24 +131,10 @@
 	}
     }
 
-    ul:not(.post-list) {
-        list-style: none;
-        padding-left: 10px;
-        margin: 8px 0px;
-
-        li {
-            padding-left: 10px;
-        }
-
-        li:before {
-            content: '*';
-            position: absolute;
-            left: -10px;
-            color: var(--accent);
-        }
-    }
-
     &-content {
+	// Puts content below floating disclaimer.
+	clear: both;
+
         h1, h2, h3, h4, h5, h6 {
             font-size: $font-size + 0.1rem;
             color: var(--accent-secondary);
@@ -327,5 +335,21 @@
     }
 }
 
-.meta {
+
+.post-content ul,
+.taxonomy-list {
+    list-style: none;
+    padding-left: 10px;
+    margin: 8px 0px;
+
+    li {
+	padding-left: 10px;
+    }
+
+    li:before {
+	content: '*';
+	position: absolute;
+	left: -10px;
+	color: var(--accent);
+    }
 }

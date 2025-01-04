@@ -1,0 +1,122 @@
+.tree {
+    --tree-clr: var(--accent-alpha-70);
+    --tree-font-size: 1rem;
+    --tree-item-height: 1.6;
+    --tree-thickness: 2px;
+    --tree-dot-size: 15px;
+    --tree-style: solid;
+    --tree-offset: 35px;
+    --tree-indent: 15px;
+
+    --middle-li-left: calc(var(--tree-offset) + var(--tree-thickness) / 2);
+    --middle-line: var(--tree-item-height) / 2 * var(--tree-font-size);
+    --before-border-width: calc(var(--tree-offset) + var(--tree-thickness) / 2);
+
+    &-content {
+	padding-left: var(--tree-indent);
+    }
+}
+
+.tree summary {
+    display: block;
+    cursor: pointer;
+    pointer-events: none;
+
+    a {
+	pointer-events: auto;
+    }
+}
+
+.tree summary::marker {
+    display: none;
+}
+
+.tree summary::before {
+    z-index: 1;
+    pointer-events: auto;
+    background: url('data:image/svg+xml,<%3Fxml version="1.0"%3F><svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><g fill="%23fff"><path d="m5 9h4v-4h2v4h4v2h-4v4h-2v-4h-4z"/><path d="m25 9h10v2h-10z"/></g></svg>') 0 0;
+    background-size: auto 100%;
+    background-color: var(--accent-secondary) !important;
+}
+
+.tree details[open] > summary::before {
+    background-position: -15px 0;
+}
+
+.tree ul {
+    list-style: none;
+    margin: 0px;
+    font-size: var(--tree-font-size);
+}
+
+.tree > ul > li {
+    padding-inline-start: 0px;
+
+    &:before {
+	border-color: transparent !important;
+    }
+
+    &:after{
+	left: calc(var(--tree-thickness) / 2 - var(--tree-dot-size) / 2);
+    }
+
+    > details > summary {
+	&::before {
+	    left: calc(var(--tree-thickness) / 2 - var(--tree-dot-size) / 2);
+	}
+    }
+}
+
+.tree li {
+    margin: 0px;
+    line-height: var(--tree-item-height);
+    padding-inline-start: var(--tree-offset);
+    border-left: var(--tree-thickness) var(--tree-style) var(--tree-clr);
+    position: relative;
+
+    &:last-child {
+	border-color: transparent; /* hide (not remove!) border on last li element*/
+    }
+
+
+    &::before{
+	content: '';
+	position: absolute;
+	top: calc(var(--middle-line) - var(--tree-thickness) / 2);
+	left: calc(var(--middle-li-left) - var(--before-border-width));
+	height: 0px;
+	width: var(--before-border-width);
+	border-bottom: var(--tree-thickness) var(--tree-style) var(--tree-clr);
+    }
+
+    &:first-child::before {
+	// border-color: transparent; /* hide (not remove!) border on last li element*/
+    }
+
+    &:last-child::before {
+	top: 0px;
+	left: calc(var(--middle-li-left) - var(--before-border-width) - var(--tree-thickness));
+	height: calc(var(--middle-line) - var(--tree-thickness) / 2);
+	border-left: var(--tree-thickness) var(--tree-style) var(--tree-clr);
+    }
+}
+
+.tree li::after,
+.tree summary::before {
+    content: '';
+    text-align: center;
+    font-weight: normal;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    background-color: #b0b0b0;
+    top: calc(var(--middle-line) - var(--tree-dot-size) / 2);
+    left: calc(var(--middle-li-left) - var(--tree-dot-size) / 2);
+
+    width: var(--tree-dot-size);
+    height: var(--tree-dot-size);
+    border-radius: 50%;
+}

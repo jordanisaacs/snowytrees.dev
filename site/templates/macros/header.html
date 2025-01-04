@@ -7,10 +7,8 @@
         <div class="header-logo">
             {{ logo::logo(config=config) }}
         </div>
-        <div class="menu-trigger" tabindex="0">
-	    menu
-        </div>
+	{{ menu::menu(config=config, current_url=current_url,header=true) }}
     </div>
-    {{ menu::menu(config=config, current_url=current_url) }}
+    {{ menu::menu(config=config, current_url=current_url,header=false) }}
 </header>
 {% endmacro header %}

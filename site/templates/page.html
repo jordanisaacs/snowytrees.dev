@@ -1,50 +1,117 @@
 {% extends "base.html" -%}
 
 {%- block title %}
-    <title>{{ page.title }} | {{ config.extra.title }}</title>
+<title>{{ page.title }} | {{ config.extra.title }}</title>
 {%- endblock title -%}
 
 {%- block main -%}
-    <article class="post">
-        {% set section = get_section(path="blog/_index.md") %}
-        <header>
-            <h1 class="post-title">
-                {% if page.extra['archive'] %}
-                {{ page.title }} ({{ section.pages | length }} post{{ section.pages | length | pluralize }})
-                {% else %}
-                    {{ page.title }}
-                {% endif %}
-            </h1>
-            {% if not page.extra['skip-meta'] -%}
-                {{ posts::meta(page=page) }}
-            {% endif %}
-        </header>
-        
-        <div class="post-content">
-            {{ page.content | safe }}
-        </div>
+<div class="post">
+  {% set section = get_section(path="blog/_index.md") %}
+  <header>
+    <h1 class="post-title">
+      {% if page.extra['archive'] %}
+      {{ page.title }} ({{ section.pages | length }} post{{ section.pages | length | pluralize }})
+      {% else %}
+      {{ page.title }}
+      {% endif %}
+    </h1>
+    {% if not page.extra['skip-meta'] -%}
+    {{ posts::meta(page=page) }}
+    {% endif %}
+  </header>
 
-        {% if page.extra['archive'] %}
-            <ul class="post-list">
-                {% for page in section.pages %}
-                    <li>
-                        {{ posts::meta(page=page, list=true) }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+  {% if not page.extra['skip-meta'] %}
+  <aside class="post-disclaimer">
+    {% if page.extra.thanks %}
+    {{ page.extra.thanks }}
+    {% endif %}
+    All opinions are solely my own and do not represent those of my employer.
+  </aside>
 
-        {% if page.extra['feeds'] %}
-            <ul class="post-list">
-                <li>
-                    {{ url::internal(path="blog/rss.xml", trailing_slash=false, text="RSS link") }}
-                </li>
-                <li>
-                    {{ url::internal(path="{{ get_url(path='blog/atom.xml', trailing_slash=false) }}", text="Atom Link") }}
-                </li>
-            </ul>
-        {% endif %}
+  {% if page.toc %}
+  <div class="toc tree">
+    <ul>
+      <li>
+	<details>
+	  <summary class="tree-content" style="font-weight:bold;">Table Of Contents</summary>
+	  <ul>
+	    {% for h1 in page.toc %}
+	    <li>
+	      {% if h1.children %}
+	      <details>
+		<summary class="tree-content"><a href="{{ h1.permalink | safe }}">{{ h1.title }}</a></summary>
+		<ul>
+		  {% for h2 in h1.children %}
+		  <li>
+		    {% if h2.children %}
+		    <details>
+		      <summary class="tree-content"><a href="{{ h2.permalink | safe }}">{{ h2.title }}</a></summary>
+		      <ul>
+			{% for h3 in h2.children %}
+			<li>
+			  {% if h3.children %}
+			  <details>
+			    <summary class="tree-content"><a href="{{ h3.permalink | safe }}">{{ h3.title }}</a></summary>
+			    <ul>
+			      {% for h4 in h3.children %}
+			      <li>
+				<div class="tree-content"><a href="{{ h4.permalink | safe }}">{{ h4.title }}</a></div>
+			      </li>
+			      {% endfor %}
+			    </ul>
+			  </details>
+			  {% else %}
+			  <div class="tree-content"><a href="{{ h3.permalink | safe }}">{{ h3.title }}</a></div>
+			  {% endif %}
+			</li>
+			{% endfor %}
+		      </ul>
+		    </details>
+		    {% else %}
+		    <div class="tree-content"><a href="{{ h2.permalink | safe }}">{{ h2.title }}</a></div>
+		    {% endif %}
+		  </li>
+		  {% endfor %}
+		</ul>
+	      </details>
+	      {% else %}
+	      <div class="tree-content"><a href="{{ h1.permalink | safe }}">{{ h1.title }}</a></div>
+	      {% endif %}
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</details>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+  {% endif %}
 
-        {# include gisqus comments #}
-    </article>
+  <article class="post-content">
+    {{ page.content | safe }}
+  </article>
+
+  {% if page.extra['archive'] %}
+  <ul class="post-list">
+    {% for page in section.pages %}
+    <li>
+      {{ posts::meta(page=page, list=true) }}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if page.extra['feeds'] %}
+  <ul class="post-list">
+    <li>
+      {{ url::internal(path="blog/rss.xml", trailing_slash=false, text="RSS link") }}
+    </li>
+    <li>
+      {{ url::internal(path="{{ get_url(path='blog/atom.xml', trailing_slash=false) }}", text="Atom Link") }}
+    </li>
+  </ul>
+  {% endif %}
+
+  {# include gisqus comments #}
+</div>
 {%- endblock main -%}

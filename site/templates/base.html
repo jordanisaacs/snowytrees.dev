@@ -64,11 +64,11 @@
             {{ header::header(config=config, current_url=current_url) }}
         {%- endblock header -%}
 
-        <div class="content">
+        <main class="content">
             {%- block main -%}
                {{ lists::list_pages() }}
             {%- endblock main -%}
-        </div>
+        </main>
 
         {%- block pagination -%}
             {{ pagination::paginate(pagelink = current_url) }}

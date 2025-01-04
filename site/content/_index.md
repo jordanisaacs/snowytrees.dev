@@ -8,9 +8,6 @@ work on database transaction processing and storage. Outside of $dayjob I
 develop and contribute to various open source Linux and Nix/NixOS related
 projects.
 
-I went to university at Carnegie Mellon where I received a B.A. in Economics
-with a focus on digital economies.
-
 # External Publications
 
 * [Change Data Capture for SingleStore ](https://www.singlestore.com/blog/change-data-capture-for-singlestore/): An overview of how SingleStore's log-based CDC-out works.

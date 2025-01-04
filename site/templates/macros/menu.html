@@ -1,4 +1,4 @@
-{% macro menu(config, current_url) %}
+{% macro menu(config, current_url, header) %}
     {# https://github.com/ejmg/zerm/blob/669cf19b31bde47276831e307e2087313bd9d5cc/templates/macros/menu.html #}
     {%- if config.extra.main_menu_items and config.extra.main_menu_items | length > 0 %}
         {%- set menu_items = config.extra.main_menu_items -%}
@@ -12,6 +12,17 @@
             {%- set menu_more = "" -%}
         {%- endif -%}
 
+        {%- if header -%}
+        <details class="menu-trigger">
+	  <summary>menu</summary>
+	  {# Pre-render hidden since menu is toggleable #}
+          <nav class="menu-mobile">
+            <ul class="menu-inner menu-inner-mobile">
+              {{ menu::items(menu=menu_items, current_url=current_url) }}
+            </ul>
+          </nav>
+	</details>
+        {%- else -%}
         <nav class="menu-desktop">
             <ul class="menu-inner menu-inner-desktop">
                 {{ menu::items(menu=menu_items | slice(end=show_len), current_url=current_url)}}
@@ -25,15 +36,9 @@
                     </ul>
                 {%- endif -%}
             </ul>
-
         </nav>
-	{# Pre-render hidden since menu is toggleable #}
-        <nav class="menu-mobile hidden">
-            <ul class="menu-inner menu-inner-mobile">
-                {{ menu::items(menu=menu_items, current_url=current_url) }}
-            </ul>
-        </nav>
-    {% endif -%}
+	{%- endif -%}
+    {%- endif -%}
 {% endmacro menu %}
 
 {% macro items(menu, current_url) %}
