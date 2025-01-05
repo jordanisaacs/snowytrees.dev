@@ -12,7 +12,7 @@
             menu_mobile_trigger &&
                 menu_mobile_trigger.removeAttribute("open")
         },
-	// Close the mobile menu if we zoomed out of phone mode.
+	// Close the mobile menu if we zoomed out of phone mode. Does not work on ios safari.
 	toggle_vis = function () {
             was_phone && !is_phone() &&
 		hide_mobile_menu();

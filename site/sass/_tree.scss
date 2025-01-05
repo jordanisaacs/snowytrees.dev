@@ -3,7 +3,7 @@
     --tree-font-size: 1rem;
     --tree-item-height: 1.6;
     --tree-thickness: 2px;
-    --tree-dot-size: 15px;
+    --tree-dot-size: 1em;
     --tree-style: solid;
     --tree-offset: 35px;
     --tree-indent: 15px;
@@ -11,6 +11,8 @@
     --middle-li-left: calc(var(--tree-offset) + var(--tree-thickness) / 2);
     --middle-line: var(--tree-item-height) / 2 * var(--tree-font-size);
     --before-border-width: calc(var(--tree-offset) + var(--tree-thickness) / 2);
+
+    padding-left: calc(var(--tree-dot-size) / 2 - var(--tree-thickness) / 2 - var(--tree-thickness));
 
     &-content {
 	padding-left: var(--tree-indent);
@@ -38,10 +40,11 @@
     background: url('data:image/svg+xml,<%3Fxml version="1.0"%3F><svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><g fill="%23fff"><path d="m5 9h4v-4h2v4h4v2h-4v4h-2v-4h-4z" style="fill:rgb(10,15,31);"/><path d="m25 9h10v2h-10z" style="fill:rgb(10,15,31);"/></g></svg>') 0 0;
     background-size: auto 100%;
     background-color: var(--accent-secondary) !important;
+    border: 0px !important;
 }
 
 .tree details[open] > summary::before {
-    background-position: -15px 0;
+    background-position: calc(var(--tree-dot-size) * -1) 0;
 }
 
 .tree ul {
@@ -113,11 +116,13 @@
     justify-content: center;
 
     position: absolute;
-    background-color: #b0b0b0;
+    background-color: var(--background);
+    border: 2px solid var(--accent-secondary);
+    box-sizing: border-box;
     top: calc(var(--middle-line) - var(--tree-dot-size) / 2);
     left: calc(var(--middle-li-left) - var(--tree-dot-size) / 2);
 
     width: var(--tree-dot-size);
     height: var(--tree-dot-size);
-    border-radius: 50%;
+    border-radius: 25%;
 }
