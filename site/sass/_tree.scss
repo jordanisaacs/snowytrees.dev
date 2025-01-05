@@ -86,7 +86,7 @@
     line-height: var(--tree-item-height);
     padding-inline-start: var(--tree-offset);
     border-left: var(--tree-thickness) var(--tree-style) var(--tree-clr);
-    position: relative;
+    pointer-events: none;
 
     &:last-child {
 	border-color: transparent; /* hide (not remove!) border on last li element*/

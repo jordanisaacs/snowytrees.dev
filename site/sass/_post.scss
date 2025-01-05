@@ -53,10 +53,11 @@
 	margin: 8px 0px 8px 12px;
 	font-size: 0.75rem;
 	text-align: right;
-	max-width: 40%;
+	display: inline-block;
+	max-width: 35%;
 
         @media(max-width: $tablet-max-width) {
-	    max-width: 50%;
+	    max-width: 45%;
 	}
 
 	@media(max-width: $phone-max-width) {
