@@ -34,13 +34,23 @@
     display: none;
 }
 
-.tree summary::before {
-    z-index: 1;
-    pointer-events: auto;
-    background: url('data:image/svg+xml,<%3Fxml version="1.0"%3F><svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><g fill="%23fff"><path d="m5 9h4v-4h2v4h4v2h-4v4h-2v-4h-4z" style="fill:rgb(10,15,31);"/><path d="m25 9h10v2h-10z" style="fill:rgb(10,15,31);"/></g></svg>') 0 0;
-    background-size: auto 100%;
-    background-color: var(--accent-secondary) !important;
-    border: 0px !important;
+.tree summary {
+    &:focus {
+	outline: none;
+    }
+
+    &:focus::before {
+	outline: 2px dotted;
+    }
+
+    &::before {
+	z-index: 1;
+	pointer-events: auto;
+	background: url('data:image/svg+xml,<%3Fxml version="1.0"%3F><svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><g fill="%23fff"><path d="m5 9h4v-4h2v4h4v2h-4v4h-2v-4h-4z" style="fill:rgb(10,15,31);"/><path d="m25 9h10v2h-10z" style="fill:rgb(10,15,31);"/></g></svg>') 0 0;
+	background-size: auto 100%;
+	background-color: var(--accent-secondary) !important;
+	border: 0px !important;
+    }
 }
 
 .tree details[open] > summary::before {
