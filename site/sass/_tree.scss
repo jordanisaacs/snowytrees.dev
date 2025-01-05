@@ -16,6 +16,9 @@
 
     &-content {
 	padding-left: var(--tree-indent);
+	a {
+	    pointer-events: auto;
+	}
     }
 }
 
@@ -23,10 +26,6 @@
     display: block;
     cursor: pointer;
     pointer-events: none;
-
-    a {
-	pointer-events: auto;
-    }
 }
 
 .tree summary::marker,
