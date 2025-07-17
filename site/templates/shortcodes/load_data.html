@@ -1,6 +1,7 @@
 <div class="figure">
   {{ load_data(path=path) | safe }}
   {# Figure is not rendered from markdown :( so manually do it #}
+  {%- if body -%}
   <div class="figure-description">
     {{- body -}}
     {%- if fig -%}
@@ -9,4 +10,5 @@
     </sup>
     {%- endif -%}
   </div>
+  {%- endif -%}
 </div>

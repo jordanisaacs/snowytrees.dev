@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 445" width="600px">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="dropGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#ee5a52;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="eagerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffa726;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#ff9800;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="lazyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#66bb6a;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#4caf50;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="700" height="445" fill="url(#bgGradient)" stroke-width="4"/>
+  
+  <!-- Title -->
+  <text y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a1a" font-family="Arial, sans-serif" x="375">
+    Transaction Retry Bounds
+  </text>
+  
+  <!-- Chart area background -->
+  <rect y="65" height="300" fill="white" stroke="#ddd" stroke-width="1" rx="4" x="50" width="615"/>
+  
+  <!-- Y-axis -->
+  <line y1="80" y2="340" stroke="#495057" stroke-width="2" x1="75" x2="75"/>
+  <text text-anchor="middle" font-size="13" fill="#495057" transform="rotate(-90 50 210)" font-family="Arial, sans-serif" y="190" x="30">
+    Number of Locks Held
+  </text>
+  
+  
+  
+  <!-- X-axis --><line y1="340" y2="340" stroke="#495057" stroke-width="2" x1="75" x2="655"/><text text-anchor="middle" font-size="13" fill="#495057" font-family="Arial, sans-serif" y="385" x="370">
+    Retry Attempt Number
+  </text>
+  
+  <!-- Y-axis labels -->
+  <text y="88" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">N</text>
+  <text y="344" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">0</text>
+  <text y="304" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">1</text>
+  <text y="264" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">2</text>
+  <text y="224" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">3</text>
+  <text y="184" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">4</text>
+  <text y="144" text-anchor="end" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="65">5</text>
+  
+  <!-- Y-axis break (standard statistical notation) -->
+  <rect y="108" width="16" height="20" fill="white" stroke="none" x="67"/>
+  <g stroke="#2c3e50" stroke-width="2" fill="none">
+    <line y1="110" y2="118" x1="69" x2="82"/>
+    <line y1="118" y2="126" x1="69" x2="82"/>
+  </g>
+  
+  <!-- Grid lines -->
+  <g stroke="#e9ecef" stroke-width="1" fill="none">
+    <line y1="300" y2="300" x1="80" x2="650"/>
+    <line y1="260" x2="650" y2="260" x1="80"/>
+    <line y1="220" x2="650" y2="220" x1="80"/>
+    <line y1="180" x2="650" y2="180" x1="80"/>
+    <line y1="140" x2="650" y2="140" x1="80"/>
+    <line y1="88" x2="650" y2="88" x1="80"/>
+  </g>
+  
+  <!-- Data bars for retries 1-5 -->
+  <!-- Retry 1 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="120">0</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="100"/>
+    <!-- Eager restart: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#eagerGradient)" rx="2" x="120"/>
+    <!-- Lazy restart: N rows -->
+    <rect y="88" width="18" height="252" fill="url(#lazyGradient)" rx="2" x="140"/>
+  </g>
+  
+  <!-- Retry 2 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="185">1</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="165"/>
+    <!-- Eager restart: 2 rows -->
+    <rect y="260" width="18" height="80" fill="url(#eagerGradient)" rx="2" x="185"/>
+    <!-- Lazy restart: N rows -->
+    <rect y="88" width="18" height="252" fill="url(#lazyGradient)" rx="2" x="205"/>
+  </g>
+  
+  <!-- Retry 3 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="250">2</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="230"/>
+    <!-- Eager restart: 3 rows -->
+    <rect y="220" width="18" height="120" fill="url(#eagerGradient)" rx="2" x="250"/>
+  </g>
+  
+  <!-- Retry 4 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="315">3</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="295"/>
+    <!-- Eager restart: 4 rows -->
+    <rect y="180" width="18" height="160" fill="url(#eagerGradient)" rx="2" x="315"/>
+  </g>
+  
+  <!-- Retry 5 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="380">4</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="360"/>
+    <!-- Eager restart: 5 rows -->
+    <rect y="140" width="18" height="200" fill="url(#eagerGradient)" rx="2" x="380"/>
+  </g>
+  
+  <!-- X-axis break (standard statistical notation) -->
+  <rect y="332" width="20" height="16" fill="white" stroke="none" x="423"/>
+  <g stroke="#2c3e50" stroke-width="2" fill="none">
+    <line y1="334" y2="346" x1="425" x2="433"/>
+    <line y1="334" y2="346" x1="433" x2="441"/>
+  </g>
+  
+  <!-- After break: N, N+1, N+2 -->
+  <!-- Retry N -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="475">N</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="455"/>
+    <!-- Eager restart: N rows -->
+    <rect y="84" width="18" height="256" fill="url(#eagerGradient)" rx="2" x="475"/>
+  </g>
+  
+  <!-- Retry N+1 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="540">N+1</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="520"/>
+  </g>
+  
+  <!-- Retry N+2 -->
+  <g>
+    <text y="358" text-anchor="middle" font-size="11" fill="#6c757d" font-family="Arial, sans-serif" x="605">N+2</text>
+    <!-- Drop all locks: 1 row -->
+    <rect y="300" width="18" height="40" fill="url(#dropGradient)" rx="2" x="585"/>
+  </g>
+  
+  <!-- Ellipsis -->
+  <text y="358" text-anchor="middle" font-size="16" fill="#6c757d" font-family="Arial, sans-serif" x="640">...</text>
+  
+  <!-- Enhanced Legend -->
+  
+<g xmlns="http://www.w3.org/2000/svg" transform="translate(150, 400)">
+    <rect xmlns="http://www.w3.org/2000/svg" fill="white" stroke="#ddd" stroke-width="1" rx="4" y="0" height="30" width="445" x="-8"/>
+    <rect width="14" height="14" fill="url(#dropGradient)" rx="2" y="7" x="0"/><text font-size="11" fill="#495057" font-family="Arial, sans-serif" y="18" x="20">Drop All Locks (∞ retries)</text>
+    
+    <rect width="14" height="14" fill="url(#eagerGradient)" rx="2" y="7" x="150"/>
+    <text font-size="11" fill="#495057" font-family="Arial, sans-serif" x="170" y="18">Eager Restart (N retries)</text>
+    
+    <rect width="14" height="14" fill="url(#lazyGradient)" rx="2" y="7" x="295"/>
+    <text font-size="11" fill="#495057" font-family="Arial, sans-serif" y="18" x="315">Lazy Restart (1 retry)</text>
+  </g>
+  
+  
+  
+  
+  
+</svg>
