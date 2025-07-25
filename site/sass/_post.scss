@@ -272,6 +272,11 @@
 	    }
 	}
 
+    .table-wrapper {
+        overflow: auto;
+        padding-bottom: 3px;
+    }
+
 	table {
 	    border-collapse: collapse;
 	    border: 2px solid;

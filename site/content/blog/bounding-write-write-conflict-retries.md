@@ -114,6 +114,8 @@ t.value > 0`. There can be an infinitely growing number of rows with `value >
 0`. The unbounded predicate is illustrated in the example below, which assumes
 row-level locks.
 
+<div class="table-wrapper">
+
 | Ts  | Thread 1                | Thread 2                | Thread 3                                                                        |
 |-----|-------------------------|-------------------------|---------------------------------------------------------------------------------|
 | 1   | Commit Write K=1,V=1    |                         | Begin Txn                                                                       |
@@ -127,6 +129,8 @@ row-level locks.
 | N+1 |                         | Commit Update K=N,V=V+1 |                                                                                 |
 | N+2 |                         |                         | Update where V > 0,V=V+1<br>(conflicts with T2's update)<br>(Locks K=1,2,...,N) |
 | ... | ...                     | ...                     | ...                                                                             |
+
+</div>
 
 Repeat ad infinitum. The write-write conflicts occur because there is always a
 new row in the write set that was not visible at the pre-retry timestamp, so it
