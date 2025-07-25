@@ -1,12 +1,12 @@
 +++
 title = "Bounding retries of write-write conflicts in MVCC+2PL"
-date = 2025-07-14
+date = 2025-07-25
 
 [taxonomies]
-tags=[]
+tags=["databases", "concurrency-control"]
 
 [extra]
-thanks = "Thanks to Alex Miller for feedback and brainstorming!"
+thanks = "Thanks to Alex Miller for feedback!"
 +++
 
 # Snapshot Isolation, Multi-versioning, & Two-phase Locking
@@ -30,6 +30,8 @@ been written after the transaction's read version. The benefit of obtaining that
 lock is well known: once a transaction obtains the write lock, it is not
 possible for there to be any new write-write conflicts on the protected resource
 (a row, predicate, table, etc.).
+
+<!-- more -->
 
 # Handling Write-Write Conflicts
 
