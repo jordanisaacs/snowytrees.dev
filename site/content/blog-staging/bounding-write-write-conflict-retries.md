@@ -107,24 +107,24 @@ only ever be one row in the write set. An unbounded write set can have its write
 set grow or change after every retry. There are two types of unbounded write
 sets.
 
-The first type is where the write set can infinitely grow, e.g. `update where
-value > 0`. There can be an infinitely growing number of rows with `value >
+The first type is where the write set can infinitely grow, e.g. `update t where
+t.value > 0`. There can be an infinitely growing number of rows with `value >
 0`. The unbounded predicate is illustrated in the example below, which assumes
 row-level locks.
 
-| Ts  | Thread 1                | Thread 2                | Thread 3                                                                       |
-|-----|-------------------------|-------------------------|--------------------------------------------------------------------------------|
-| 1   | Commit Write X=1,Y=1    |                         | Begin Txn                                                                      |
-| 2   |                         | Commit Update X=1,Y=Y+1 |                                                                                |
-| 3   |                         |                         | Update where X > 0,Y=Y+1<br>(conflicts with T2's update)<br>(Locks X=1)        |
-| 4   |                         | Commit Write X=2,Y=1    | Retry statement                                                                |
-| 5   | Commit Update X=2,Y=Y+1 |                         |                                                                                |
-| 3   |                         |                         | Update where X > 0,Y=Y+1<br>(conflicts with T1's update)<br>(Locks X=1,2)      |
-| ... | ...                     | ...                     | ...                                                                            |
-| N   | Commit Write X=N,Y=1    |                         | Retry statement                                                                |
-| N+1 |                         | Commit Update X=N,Y=Y+1 |                                                                                |
-| N+2 |                         |                         | Update where X > 0,Y=Y+1<br>(conflicts with T2's update)<br>(Locks X=1,2,...N) |
-| ... | ...                     | ...                     | ...                                                                            |
+| Ts  | Thread 1                | Thread 2                | Thread 3                                                                        |
+|-----|-------------------------|-------------------------|---------------------------------------------------------------------------------|
+| 1   | Commit Write K=1,V=1    |                         | Begin Txn                                                                       |
+| 2   |                         | Commit Update K=1,V=V+1 |                                                                                 |
+| 3   |                         |                         | Update where V > 0,V=V+1<br>(conflicts with T2's update)<br>(Locks K=1)         |
+| 4   |                         | Commit Write K=2,V=1    | Retry statement                                                                 |
+| 5   | Commit Update K=2,V=V+1 |                         |                                                                                 |
+| 3   |                         |                         | Update where V > 0,V=V+1<br>(conflicts with T1's update)<br>(Locks K=1,2)       |
+| ... | ...                     | ...                     | ...                                                                             |
+| N   | Commit Write K=N,V=1    |                         | Retry statement                                                                 |
+| N+1 |                         | Commit Update K=N,V=V+1 |                                                                                 |
+| N+2 |                         |                         | Update where V > 0,V=V+1<br>(conflicts with T2's update)<br>(Locks K=1,2,...,N) |
+| ... | ...                     | ...                     | ...                                                                             |
 
 Repeat ad infinitum. The write-write conflicts occur because there is always a
 new row in the write set that was not visible at the pre-retry timestamp, so it
@@ -132,23 +132,33 @@ will not be locked. Which means a different thread can keep updating that row
 and cause write-write conflicts.
 
 The second type is where the write set is always changing. This would be a query
-with a complex predicate, e.g. `update where (subselect from another table) =
-1`. Even though we are locking down the write set, the other table can continue
-to receive writes which change the statement's write set when re-evaluated with
-a new read timestamp.
+with a complex predicate, e.g. `update t where (subselect from t2) =
+t.key`. Even though we are locking down the write set, the other table can
+continue to receive writes which change the statement's write set when
+re-evaluated with a new read timestamp.
 
-To solve this, we need to introduce a predicate write-lock. The predicate
-write-lock will prevent writes to all existing and possible rows that match the
-predicate. This will freeze the write set and ensure on statement retry the
-write set is unchanged. Then with the frozen write set we now are back to the
-bounds given in the earlier section with the normal write-locks.
+To solve this, we need to use a predicate shared-lock. The predicate shared-lock
+prevents writes to all existing and possible rows (phantoms) that match the
+predicate. This ensures when the statement is retried with a new read timestamp
+the write set is unchanged. With the frozen write set, the bounds given in the
+previous section are applicable again.
 
-As the predicate write-lock needs to lock existing and possible future rows it
-is a gap-lock. In the first example it could be be a predicate lock on `X >
-0`. It would prevent writes to X=N and thus stop the unbounded growth of the
-write set. In the second example it could be achieved with a table lock on the
-other table. With no writes allowed to the table, `(subselect from another
-table) = 1` would not change meaning the write set of the query doesn't change.
+In the first example, `update t where t.value > 0`, a predicate shared-lock on
+`value > 0` would work. It would prevent new writes to `K=N,V>0`, bounding the
+write set to `0..N`. In the second example, `update t where (subselect from t2)
+= t.key`, a predicate shared-lock on the range selected from t2 would work. At
+the cost of concurrency (in favor of implementation simplicity) a table lock on
+`t2` also suffices. They key point is as long as the write set is frozen, there
+is a retry bound.
+
+Also note that you can combine the two types of unbounded write sets. If the
+second example used `t.value`: `update t where (subselect from t2) = t.value`,
+then `t.value` is also part of the predicate and would need to be
+locked. `t.key` is bounded but `t.value` is not, similar to the first
+example. So the sub-select would need to be locked first, then the range of
+`t.value` that matches sub-select would be locked second. At this point, from an
+implementation perspective, falling back to table locks for `t2` and `t` looks
+enticing. The predicates get complex fast.
 
 # A Note about Deadlocks
 
