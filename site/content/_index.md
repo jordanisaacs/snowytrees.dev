@@ -3,14 +3,10 @@ title = "Home"
 insert_anchor_links = "right"
 +++
 
-Hi, I am **Jordan Isaacs**! I am a software engineer at _SingleStore_ where I
-work on database transaction processing and storage. Outside of $dayjob I
-develop and contribute to various open source Linux and Nix/NixOS related
-projects.
-
-# External Publications
-
-* [Change Data Capture for SingleStore ](https://www.singlestore.com/blog/change-data-capture-for-singlestore/): An overview of how SingleStore's log-based CDC-out works.
+Hi, I am **Jordan Isaacs**! I am a software engineer at _Databricks_ building
+Lakebase. Previously I was at _SingleStore_ where I worked database transaction
+processing and storage. Outside of $dayjob I develop and contribute to various
+open source Linux and Nix/NixOS related projects.
 
 # Digital Presence
 
